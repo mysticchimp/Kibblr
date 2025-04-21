@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface TimeRecord {
+interface TimeEntry {
   id: string;
   activityType: string;
   duration: number;
@@ -8,40 +8,40 @@ interface TimeRecord {
 }
 
 interface TimeTrackingContextType {
-  records: TimeRecord[];
-  addRecord: (record: Omit<TimeRecord, 'id'>) => void;
+  timeEntries: TimeEntry[];
+  addTimeEntry: (entry: Omit<TimeEntry, 'id'>) => void;
 }
 
 const TimeTrackingContext = createContext<TimeTrackingContextType | undefined>(undefined);
 
-export const TimeTrackingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [records, setRecords] = useState<TimeRecord[]>([]);
+export const useTimeTracking = () => {
+  const context = useContext(TimeTrackingContext);
+  if (!context) {
+    throw new Error('useTimeTracking must be used within a TimeTrackingProvider');
+  }
+  return context;
+};
 
-  const addRecord = (record: Omit<TimeRecord, 'id'>) => {
-    console.log('Adding new record:', record);
-    const newRecord: TimeRecord = {
-      ...record,
-      id: Date.now().toString(),
+interface TimeTrackingProviderProps {
+  children: ReactNode;
+}
+
+export const TimeTrackingProvider: React.FC<TimeTrackingProviderProps> = ({ children }) => {
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
+
+  const addTimeEntry = (entry: Omit<TimeEntry, 'id'>) => {
+    const newEntry: TimeEntry = {
+      ...entry,
+      id: Math.random().toString(36).substr(2, 9),
     };
-    console.log('New record with ID:', newRecord);
-    setRecords(prev => {
-      const updatedRecords = [...prev, newRecord];
-      console.log('Updated records:', updatedRecords);
-      return updatedRecords;
-    });
+    setTimeEntries(prev => [...prev, newEntry]);
   };
 
   return (
-    <TimeTrackingContext.Provider value={{ records, addRecord }}>
+    <TimeTrackingContext.Provider value={{ timeEntries, addTimeEntry }}>
       {children}
     </TimeTrackingContext.Provider>
   );
 };
 
-export const useTimeTracking = () => {
-  const context = useContext(TimeTrackingContext);
-  if (context === undefined) {
-    throw new Error('useTimeTracking must be used within a TimeTrackingProvider');
-  }
-  return context;
-}; 
+export { TimeTrackingContext }; 
