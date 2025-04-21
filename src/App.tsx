@@ -7,12 +7,17 @@ import Dashboard from './components/Dashboard';
 const AppContainer = styled.div`
   min-height: 100vh;
   background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Nav = styled.nav`
   background-color: white;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 `;
 
 const NavList = styled.ul`
@@ -34,11 +39,20 @@ const NavItem = styled.li<{ active: boolean }>`
     cursor: pointer;
     color: ${props => props.active ? '#007bff' : '#666'};
     font-weight: ${props => props.active ? 'bold' : 'normal'};
+    font-size: 1rem;
     
     &:hover {
       color: #007bff;
     }
   }
+`;
+
+const MainContent = styled.main`
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 `;
 
 const App: React.FC = () => {
@@ -58,7 +72,9 @@ const App: React.FC = () => {
           </NavList>
         </Nav>
         
-        {activeTab === 'timer' ? <Timer /> : <Dashboard />}
+        <MainContent>
+          {activeTab === 'timer' ? <Timer /> : <Dashboard />}
+        </MainContent>
       </AppContainer>
     </TimeTrackingProvider>
   );
