@@ -54,6 +54,14 @@ const ActivitySelect = styled.select`
   width: 100%;
 `;
 
+const TimeSelect = styled.select`
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  margin: 1rem 0;
+  width: 100%;
+`;
+
 const Modal = styled.div`
   position: fixed;
   top: 0;
@@ -87,10 +95,15 @@ const ModalActions = styled.div`
 
 const Timer: React.FC = () => {
   const { addTimeEntry } = useTimeTracking();
-  const [timeLeft, setTimeLeft] = useState<number>(3600); // 60 minutes in seconds
+  const [selectedTime, setSelectedTime] = useState<number>(60); // Default 60 minutes
+  const [timeLeft, setTimeLeft] = useState<number>(selectedTime * 60);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [activityType, setActivityType] = useState<string>('MBA');
   const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTimeLeft(selectedTime * 60);
+  }, [selectedTime]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -126,19 +139,19 @@ const Timer: React.FC = () => {
   };
 
   const handleSave = () => {
-    const duration = 3600 - timeLeft; // Total time spent
+    const duration = (selectedTime * 60) - timeLeft; // Total time spent
     addTimeEntry({
       activityType,
       duration,
       endTime: new Date().toISOString(),
     });
-    setTimeLeft(3600);
+    setTimeLeft(selectedTime * 60);
     setShowSaveModal(false);
   };
 
   const handleCancel = () => {
     setShowSaveModal(false);
-    setTimeLeft(3600);
+    setTimeLeft(selectedTime * 60);
   };
 
   return (
@@ -154,6 +167,18 @@ const Timer: React.FC = () => {
         <option value="Job Search">Job Search</option>
       </ActivitySelect>
 
+      <TimeSelect
+        value={selectedTime}
+        onChange={(e) => setSelectedTime(Number(e.target.value))}
+      >
+        <option value="15">15 minutes</option>
+        <option value="30">30 minutes</option>
+        <option value="45">45 minutes</option>
+        <option value="60">60 minutes</option>
+        <option value="90">90 minutes</option>
+        <option value="120">120 minutes</option>
+      </TimeSelect>
+
       <TimerDisplay>{formatTime(timeLeft)}</TimerDisplay>
 
       <Controls>
@@ -163,7 +188,7 @@ const Timer: React.FC = () => {
         <Button onClick={handlePause} disabled={!isRunning}>
           Pause
         </Button>
-        <Button onClick={handleStop} disabled={!isRunning && timeLeft === 3600}>
+        <Button onClick={handleStop} disabled={!isRunning && timeLeft === selectedTime * 60}>
           Stop
         </Button>
       </Controls>
@@ -173,7 +198,7 @@ const Timer: React.FC = () => {
           <ModalContent>
             <ModalTitle>Save Session</ModalTitle>
             <p>Activity: {activityType}</p>
-            <p>Duration: {formatTime(3600 - timeLeft)}</p>
+            <p>Duration: {formatTime((selectedTime * 60) - timeLeft)}</p>
             <ModalActions>
               <Button onClick={handleCancel}>Cancel</Button>
               <Button onClick={handleSave}>Save</Button>

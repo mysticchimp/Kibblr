@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 interface TimeEntry {
   id: string;
@@ -27,7 +27,14 @@ interface TimeTrackingProviderProps {
 }
 
 export const TimeTrackingProvider: React.FC<TimeTrackingProviderProps> = ({ children }) => {
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(() => {
+    const savedEntries = localStorage.getItem('timeEntries');
+    return savedEntries ? JSON.parse(savedEntries) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('timeEntries', JSON.stringify(timeEntries));
+  }, [timeEntries]);
 
   const addTimeEntry = (entry: Omit<TimeEntry, 'id'>) => {
     const newEntry: TimeEntry = {
