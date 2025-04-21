@@ -1,26 +1,67 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { TimeTrackingProvider } from './context/TimeTrackingContext';
+import Timer from './components/Timer';
+import Dashboard from './components/Dashboard';
 
-function App() {
+const AppContainer = styled.div`
+  min-height: 100vh;
+  background-color: #f5f5f5;
+`;
+
+const Nav = styled.nav`
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const NavList = styled.ul`
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+const NavItem = styled.li<{ active: boolean }>`
+  margin-right: 1rem;
+  
+  button {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: ${props => props.active ? '#007bff' : '#666'};
+    font-weight: ${props => props.active ? 'bold' : 'normal'};
+    
+    &:hover {
+      color: #007bff;
+    }
+  }
+`;
+
+const App: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'timer' | 'dashboard'>('timer');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <TimeTrackingProvider>
+      <AppContainer>
+        <Nav>
+          <NavList>
+            <NavItem active={activeTab === 'timer'}>
+              <button onClick={() => setActiveTab('timer')}>Timer</button>
+            </NavItem>
+            <NavItem active={activeTab === 'dashboard'}>
+              <button onClick={() => setActiveTab('dashboard')}>Dashboard</button>
+            </NavItem>
+          </NavList>
+        </Nav>
+        
+        {activeTab === 'timer' ? <Timer /> : <Dashboard />}
+      </AppContainer>
+    </TimeTrackingProvider>
   );
-}
+};
 
 export default App;
